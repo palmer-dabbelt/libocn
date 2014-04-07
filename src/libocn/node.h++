@@ -27,7 +27,7 @@ namespace libocn {
 }
 
 #include "path.h++"
-#include <map>
+#include <unordered_map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -44,12 +44,12 @@ namespace libocn {
         /* This stores a map that maps a destination node to the path
          * that can be taken in order to reach that destination from
          * this node. */
-        std::map<std::string, std::shared_ptr<path>> _paths;
+        std::unordered_map<std::string, std::shared_ptr<path>> _paths;
 
         /* This stores a map that maps a source node to the path that
          * can be taken in order to reach this node from that
          * source. */
-        std::map<std::string, std::weak_ptr<path>> _inc;
+        std::unordered_map<std::string, std::weak_ptr<path>> _inc;
 
     public:
         /* Creates a node without any paths, given a name that

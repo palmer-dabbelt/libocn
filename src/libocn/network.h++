@@ -23,7 +23,7 @@
 #define LIBOCN__NETWORK_HXX
 
 #include "node.h++"
-#include <map>
+#include <unordered_map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -38,7 +38,7 @@ namespace libocn {
     class network {
     private:
         /* This stores the list of every node in the network. */
-        std::map<std::string, std::shared_ptr<node>> _nodes;
+        std::unordered_map<std::string, std::shared_ptr<node>> _nodes;
 
     public:
         /* This constructor will probably only be useful if you're a

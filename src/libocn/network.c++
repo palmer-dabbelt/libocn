@@ -22,7 +22,7 @@
 #include "network.h++"
 using namespace libocn;
 
-static std::map<std::string, std::shared_ptr<node>>
+static std::unordered_map<std::string, std::shared_ptr<node>>
 build_name_map(const std::vector<std::shared_ptr<node>>& nodes);
 
 network::network(const std::vector<std::shared_ptr<node>>& nodes)
@@ -40,10 +40,10 @@ std::vector<std::shared_ptr<node>> network::nodes(void) const
     return out;
 }
 
-std::map<std::string, std::shared_ptr<node>>
+std::unordered_map<std::string, std::shared_ptr<node>>
 build_name_map(const std::vector<std::shared_ptr<node>>& nodes)
 {
-    std::map<std::string, std::shared_ptr<node>> out;
+    std::unordered_map<std::string, std::shared_ptr<node>> out;
 
     for (const auto& node : nodes)
         out[node->name()] = node;
