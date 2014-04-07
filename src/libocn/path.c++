@@ -22,10 +22,60 @@
 #include "path.h++"
 using namespace libocn;
 
+/* Converts an array of shared pointers into an array of weak pointers. */
+static std::vector<std::weak_ptr<node>>
+weaken(const std::vector<std::shared_ptr<node>>& strong);
+
 path::path(std::shared_ptr<node>& source, std::shared_ptr<node>& dest)
     : _s(source),
       _d(dest),
       _cost(1),
       _steps()
 {
+}
+
+path::path(std::shared_ptr<node> source, std::shared_ptr<node> dest,
+           const std::vector<std::shared_ptr<node>>& steps, double cost)
+    : _s(source),
+      _d(dest),
+      _cost(cost),
+      _steps(weaken(steps))
+{
+}
+
+std::vector<std::shared_ptr<node>> path::steps(void) const
+{
+    std::vector<std::shared_ptr<node>> steps;
+
+    for (const auto& step : _steps)
+        steps.push_back(step.lock());
+
+    return steps;
+}
+
+std::shared_ptr<path> path::cat(const std::shared_ptr<path>& that)
+{
+    /* Concatonate the two step lists into a single large one. */
+    std::vector<std::shared_ptr<node>> step_list;
+    for (const auto& step : this->steps())
+        step_list.push_back(step);
+    step_list.push_back(this->d());
+    for (const auto& step : that->steps())
+        step_list.push_back(step);
+
+    return std::make_shared<path>(this->s(),
+                                  that->d(),
+                                  step_list,
+                                  this->cost() + that->cost());
+}
+
+std::vector<std::weak_ptr<node>>
+weaken(const std::vector<std::shared_ptr<node>>& strong)
+{
+    std::vector<std::weak_ptr<node>> out;
+
+    for (const auto& ptr : strong)
+        out.push_back(ptr);
+
+    return out;
 }

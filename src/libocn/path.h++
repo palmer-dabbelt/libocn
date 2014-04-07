@@ -47,10 +47,19 @@ namespace libocn {
          * a destination) with a cost of 1. */
         path(std::shared_ptr<node>& source, std::shared_ptr<node>& dest);
 
+        /* Creates a path explicitly given all its parameters. */
+        path(std::shared_ptr<node> source, std::shared_ptr<node> dest,
+             const std::vector<std::shared_ptr<node>>& steps, double cost);
+
         /* Accessor functions. */
         std::shared_ptr<node> d(void) const { return _d.lock(); }
         std::shared_ptr<node> s(void) const { return _s.lock(); }
+        std::vector<std::shared_ptr<node>> steps(void) const;
         double cost(void) const { return _cost; }
+
+        /* Concatenates this path with another path, producing a new
+         * one. */
+        std::shared_ptr<path> cat(const std::shared_ptr<path>& that);
     };
 }
 

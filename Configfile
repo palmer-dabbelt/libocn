@@ -27,3 +27,4 @@ DEPLIBS     += ocn
 SOURCES     += shortest_path.c++
 
 TESTSRC     += mesh-2x2.bash
+TESTSRC     += mesh-5x5.bash

@@ -46,6 +46,11 @@ namespace libocn {
          * this node. */
         std::map<std::string, std::shared_ptr<path>> _paths;
 
+        /* This stores a map that maps a source node to the path that
+         * can be taken in order to reach this node from that
+         * source. */
+        std::map<std::string, std::weak_ptr<path>> _inc;
+
     public:
         /* Creates a node without any paths, given a name that
          * uniquely identifies that node.  You really need these names
@@ -57,7 +62,7 @@ namespace libocn {
 
         /* Returns the path that must be taken in order to get from
          * this node to the provided node. */
-        const std::shared_ptr<path>& search(const std::shared_ptr<node>& that);
+        const std::shared_ptr<path> search(const std::shared_ptr<node>& that);
 
         /* Informs this node of a path that it can take in order to
          * reach another node. */

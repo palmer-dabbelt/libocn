@@ -1,4 +1,4 @@
-WIDTH="2"
-HEIGHT="2"
+WIDTH="5"
+HEIGHT="5"
 
 #include "mesh_harness.bash"
