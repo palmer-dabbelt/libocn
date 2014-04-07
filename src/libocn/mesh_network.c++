@@ -20,6 +20,7 @@
  */
 
 #include "mesh_network.h++"
+#include <stdlib.h>
 using namespace libocn;
 
 #ifndef BUFFER_SIZE

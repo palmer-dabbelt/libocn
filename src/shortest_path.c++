@@ -22,6 +22,7 @@
 #include "version.h"
 #include <libocn/mesh_network.h++>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 int main(int argc, const char **argv)
