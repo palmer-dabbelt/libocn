@@ -25,13 +25,15 @@ using namespace libocn;
 
 node::node(const std::string& name)
     : _name(name),
-      _paths(),
-      _inc()
+      _paths_valid(true),
+      _paths()
 {
 }
 
 const std::shared_ptr<path> node::search(const std::shared_ptr<node>& that)
 {
+    update_paths();
+
     auto l = this->_paths.find(that->name());
     if (l == this->_paths.end())
         return NULL;
@@ -41,17 +43,59 @@ const std::shared_ptr<path> node::search(const std::shared_ptr<node>& that)
 
 void node::add_path(std::shared_ptr<path> new_path)
 {
+    /* Check if there was an old path to this target.  If so we're
+     * going to need to replace the path, but only if it's worse than
+     * the new path. */
+    auto old_path_l = _paths.find(new_path->d()->name());
+    std::shared_ptr<path> old_path = NULL;
+    if (old_path_l != _paths.end())
+        old_path = old_path_l->second;
+
+    /* If there was an old path and it's better then do nothing. */
+    if ((old_path != NULL) && (old_path->cost() <= new_path->cost()))
+        return;
+
+    _paths[new_path->d()->name()] = new_path;
+    _paths_valid = false;
+
+    if (new_path->is_direct() == true)
+        _neighbors.push_back(new_path);
+}
+
+std::vector<std::shared_ptr<path>> node::paths(void)
+{
+    update_paths();
+
+    std::vector<std::shared_ptr<path>> out;
+
+    for (const auto& pair : _paths)
+        out.push_back(pair.second);
+
+    return out;
+}
+
+void node::update_paths(void)
+{
+    /* If we haven't already cached the answer then attempt to refresh
+     * it right now.  Be sure not to call "paths()" here, as it'll
+     * start recursing forever! */
+    if (this->_paths_valid == true)
+        return;
+
     /* Here we create a stack that contains all the new paths that
      * have been discovered as the result of this addition. */
     std::stack<std::shared_ptr<path>> paths;
-    paths.push(new_path);
+    for (const auto& pair : _paths)
+        paths.push(pair.second);
 
+    /* Start out without any paths in this node, none of them are
+     * actually valid any more. */
+    _paths.clear();
+
+    /* Now we just iterate until there's no new paths to be
+     * discovered.  This is Dijkstra's Algorithm. */
     while (paths.size() != 0) {
         auto new_path = paths.top(); paths.pop();
-
-        /* If our path is just circular then bail out right now. */
-        if (new_path->d()->name() == name())
-            continue;
 
         /* Check if there was an old path to this node.  If so we're
          * going to need to replace the path and re-compute
@@ -67,42 +111,21 @@ void node::add_path(std::shared_ptr<path> new_path)
         if ((old_path != NULL) && (old_path->cost() <= new_path->cost()))
             continue;
 
+        /* If this path is circular then justs abandon it here. */
+        if (new_path->s() == new_path->d())
+            continue;
+
         /* Now that we know that this path is useful we can add it to
          * our list current path list. */
         _paths[new_path->d()->name()] = new_path;
-        new_path->d()->_inc[new_path->s()->name()] = new_path;
 
         /* Add every newly-discovered path to the queue for
          * processing. */
-        for (const auto& second_half : new_path->d()->paths()) {
+        for (const auto& second_half : new_path->d()->_neighbors) {
             paths.push(new_path->cat(second_half));
         }
     }
 
-    /* Now that we've updated the reachable paths from this node, go
-     * ahead and update every node that can reach us. */
-    for (const auto& first_half : _inc) {
-        for (const auto& second_half : _paths) {
-            auto first_path = first_half.second.lock();
-            auto second_path = second_half.second;
-            auto new_path = first_path->cat(second_path);
-
-            if (new_path->s()->name() == new_path->d()->name())
-                continue;
-
-            auto old_path = new_path->s()->search(new_path->d());
-            if ((old_path == NULL) || (old_path->cost() > new_path->cost()))
-                new_path->s()->add_path(new_path);
-        }
-    }
-}
-
-std::vector<std::shared_ptr<path>> node::paths(void) const
-{
-    std::vector<std::shared_ptr<path>> out;
-
-    for (const auto& pair : _paths)
-        out.push_back(pair.second);
-
-    return out;
+    /* Now we can set that flag so this never gots called again. */
+    this->_paths_valid = true;
 }

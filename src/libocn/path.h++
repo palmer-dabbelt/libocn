@@ -60,6 +60,10 @@ namespace libocn {
         /* Concatenates this path with another path, producing a new
          * one. */
         std::shared_ptr<path> cat(const std::shared_ptr<path>& that);
+
+        /* Returns TRUE if this is a direct path, which means it has
+         * only a single neighbor. */
+        bool is_direct(void) const { return _steps.size() == 0; }
     };
 }
 

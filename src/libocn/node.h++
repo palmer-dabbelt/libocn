@@ -43,13 +43,15 @@ namespace libocn {
 
         /* This stores a map that maps a destination node to the path
          * that can be taken in order to reach that destination from
-         * this node. */
+         * this node.  Note that there's a valid bit here to avoid
+         * having to search too often: the rule is that the graph is
+         * searched whenever */
+        bool _paths_valid;
         std::unordered_map<std::string, std::shared_ptr<path>> _paths;
 
-        /* This stores a map that maps a source node to the path that
-         * can be taken in order to reach this node from that
-         * source. */
-        std::unordered_map<std::string, std::weak_ptr<path>> _inc;
+        /* This stores the list of neighbors of this node, which is
+         * used for the shortest-path algorithm later. */
+        std::vector<std::shared_ptr<path>> _neighbors;
 
     public:
         /* Creates a node without any paths, given a name that
@@ -70,7 +72,12 @@ namespace libocn {
 
         /* Returns a list of every path that this node knows how to
          * connect to. */
-        std::vector<std::shared_ptr<path>> paths(void) const;
+        std::vector<std::shared_ptr<path>> paths(void);
+
+    private:
+        /* Checks "_paths" for validity, updating it if it hasn't been
+         * updated already. */
+        void update_paths(void);
     };
 }
 
