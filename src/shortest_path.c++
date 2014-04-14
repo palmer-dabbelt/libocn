@@ -28,11 +28,14 @@
 int main(int argc, const char **argv)
 {
     if ((argc < 2) || (strcmp(argv[1], "--help") == 0)) {
-        exit(1);
+        printf("%s: Compute all shortest paths for a network\n", argv[0]);
+        printf("\t--mesh <width> <height>: A mesh network\n");
+        return (argc == 2) ? 0 : 1;
     }
 
-    if ((argc < 2) || (strcmp(argv[1], "--verbose") == 0)) {
-        exit(1);
+    if ((argc < 2) || (strcmp(argv[1], "--version") == 0)) {
+        printf("%s\n", PCONFIGURE_VERSION);
+        return 0;
     }
 
     /* This can be constructed in a number of different ways, but
