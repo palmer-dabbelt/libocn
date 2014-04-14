@@ -1,0 +1,9 @@
+libocn: An on-chip network generator library
+
+This library is designed to generate on-chip networks for use by the
+DREAMER project.  The general idea is that this hides away the actual
+network layout and only allows users to ask "what is the cost to go
+from node A to B?" and "what are the routes availiable to A?".
+
+An example of how to use the library can be seen in
+src/shortest_path.c++.
