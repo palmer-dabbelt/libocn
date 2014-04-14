@@ -74,6 +74,10 @@ namespace libocn {
          * connect to. */
         std::vector<std::shared_ptr<path>> paths(void);
 
+        /* Returns a list of the one-hop paths that this node can
+         * access. */
+        std::vector<std::shared_ptr<path>> neighbors(void) const;
+
     private:
         /* Checks "_paths" for validity, updating it if it hasn't been
          * updated already. */

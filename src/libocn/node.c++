@@ -74,6 +74,11 @@ std::vector<std::shared_ptr<path>> node::paths(void)
     return out;
 }
 
+std::vector<std::shared_ptr<path>> node::neighbors(void) const
+{
+    return _neighbors;
+}
+
 void node::update_paths(void)
 {
     /* If we haven't already cached the answer then attempt to refresh
