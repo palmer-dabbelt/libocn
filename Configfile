@@ -17,6 +17,7 @@ GENERATE    += version-pc.sed
 
 LIBRARIES   += libocn.so
 SOURCES     += libocn/mesh_network.c++
+SOURCES     += libocn/dmesh_network.c++
 CONFIG      += find_library_headers
 
 LIBRARIES   += pkgconfig/libocn.pc
