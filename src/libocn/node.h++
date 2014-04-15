@@ -89,6 +89,10 @@ namespace libocn {
          * access. */
         std::vector<std::shared_ptr<path>> neighbors(void) const;
 
+        /* Returns the point number that will be used to connect from
+         * this node to a neighboring node. */
+        size_t port_number(const std::shared_ptr<node>& neighbor) const;
+
     private:
         /* Checks "_paths" for validity, updating it if it hasn't been
          * updated already. */

@@ -21,6 +21,7 @@
 
 #include "node.h++"
 #include <stdlib.h>
+#include <string.h>
 #include <stack>
 using namespace libocn;
 
@@ -91,6 +92,27 @@ std::vector<std::shared_ptr<path>> node::paths(void)
 std::vector<std::shared_ptr<path>> node::neighbors(void) const
 {
     return _neighbors;
+}
+
+size_t node::port_number(const std::shared_ptr<node>& neighbor) const
+{
+    for (size_t i = 0; i < _neighbors.size(); ++i) {
+        auto neighbor = _neighbors[i]->d();
+        if (strcmp(neighbor->name().c_str(), this->name().c_str()) == 0)
+            return i;
+    }
+
+    fprintf(stderr, "Attempted to find non-existing port from '%s' to '%s'\n",
+            this->name().c_str(),
+            neighbor->name().c_str()
+        );
+    fprintf(stderr, "Existing neighbors for '%s' are:\n", name().c_str());
+    for (size_t i = 0; i < _neighbors.size(); ++i) {
+        auto neighbor = _neighbors[i]->d();
+        fprintf(stderr, "  '%s' at port %lu\n", neighbor->name().c_str(), i);
+    }
+    abort();
+    return -1;
 }
 
 void node::update_paths(void)
