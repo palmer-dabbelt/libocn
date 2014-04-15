@@ -31,7 +31,8 @@ namespace libocn {
     class dmesh_network : public mesh_network {
     public:
         /* Creates a DREAMER mesh network of the given size. */
-        dmesh_network(size_t x_count, size_t y_count);
+        dmesh_network(size_t x_count, size_t y_count,
+                      std::function<node_ptr_t(size_t, size_t)> f);
     };
 }
 

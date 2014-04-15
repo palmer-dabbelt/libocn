@@ -45,13 +45,19 @@ int main(int argc, const char **argv)
     std::shared_ptr<libocn::network> network = NULL;
 
     if ((argc == 4) && (strcmp(argv[1], "--mesh") == 0)) {
-        network = std::make_shared<libocn::mesh_network>(atoi(argv[2]),
-                                                         atoi(argv[3]));
+        network = std::make_shared<libocn::mesh_network>(
+            atoi(argv[2]),
+            atoi(argv[3]),
+            libocn::mesh_network::create_node
+            );
     }
 
     if ((argc == 4) && (strcmp(argv[1], "--dmesh") == 0)) {
-        network = std::make_shared<libocn::dmesh_network>(atoi(argv[2]),
-                                                          atoi(argv[3]));
+        network = std::make_shared<libocn::dmesh_network>(
+            atoi(argv[2]),
+            atoi(argv[3]),
+            libocn::mesh_network::create_node
+            );
     }
 
     if (network == NULL) {

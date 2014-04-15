@@ -22,7 +22,8 @@
 #include "dmesh_network.h++"
 using namespace libocn;
 
-dmesh_network::dmesh_network(size_t x, size_t y)
-    : mesh_network(1, x, 0, y-1)
+dmesh_network::dmesh_network(size_t x, size_t y,
+                             std::function<node_ptr_t(size_t, size_t)> f)
+    : mesh_network(1, x, 0, y-1, f)
 {
 }

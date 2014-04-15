@@ -22,15 +22,17 @@
 #ifndef LIBOCN__NODE_HXX
 #define LIBOCN__NODE_HXX
 
-namespace libocn {
-    class node;
-}
-
-#include "path.h++"
 #include <unordered_map>
 #include <memory>
 #include <string>
 #include <vector>
+
+namespace libocn {
+    class node;
+    typedef std::shared_ptr<node> node_ptr_t;
+}
+
+#include "path.h++"
 
 namespace libocn {
     /* This stores a single node in the network along with every

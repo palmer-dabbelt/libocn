@@ -30,8 +30,9 @@ using namespace libocn;
 
 /* This is effectively the constructor, the actual constructor
  * functions are just wrappers for this. */
-static std::vector<std::shared_ptr<node>>
-build_mesh_network(size_t x_min, size_t x_max, size_t y_min, size_t y_max);
+static std::vector<node_ptr_t>
+build_mesh_network(size_t x_min, size_t x_max, size_t y_min, size_t y_max,
+                   std::function<node_ptr_t(size_t, size_t)> f);
 
 /* A helper function for build_mesh_network(), this adds a route to
  * from the source node to the destination node. */
@@ -40,18 +41,28 @@ void add_map(std::vector<std::shared_ptr<node>>& out,
              std::map<std::pair<size_t, size_t>, std::shared_ptr<node>>& grid,
              size_t sx, size_t sy, size_t dx, size_t dy);
 
-mesh_network::mesh_network(size_t x, size_t X, size_t y, size_t Y)
-    : network(build_mesh_network(x, X, y, Y))
+mesh_network::mesh_network(size_t x, size_t X, size_t y, size_t Y,
+                           std::function<node_ptr_t(size_t, size_t)> f)
+    : network(build_mesh_network(x, X, y, Y, f))
 {
 }
 
-mesh_network::mesh_network(size_t x, size_t y)
-    : network(build_mesh_network(0, x - 1, 0, y - 1))
+mesh_network::mesh_network(size_t x, size_t y,
+                           std::function<node_ptr_t(size_t, size_t)> f)
+    : network(build_mesh_network(0, x - 1, 0, y - 1, f))
 {
+}
+
+std::shared_ptr<node> mesh_network::create_node(size_t x, size_t y)
+{
+    char buffer[BUFFER_SIZE];
+    snprintf(buffer, BUFFER_SIZE, "(%lu,%lu)", x, y);
+    return std::make_shared<node>(buffer);
 }
 
 std::vector<std::shared_ptr<node>>
-build_mesh_network(size_t x_min, size_t x_max, size_t y_min, size_t y_max)
+build_mesh_network(size_t x_min, size_t x_max, size_t y_min, size_t y_max,
+                   std::function<node_ptr_t(size_t, size_t)> f)
 {
     std::vector<std::shared_ptr<node>> out;
     std::map<std::pair<size_t, size_t>, std::shared_ptr<node>> grid;
@@ -62,9 +73,7 @@ build_mesh_network(size_t x_min, size_t x_max, size_t y_min, size_t y_max)
      * based on its position. */
     for (size_t x = x_min; x <= x_max; ++x) {
         for (size_t y = y_min; y <= y_max; ++y) {
-            char buffer[BUFFER_SIZE];
-            snprintf(buffer, BUFFER_SIZE, "(%lu,%lu)", x, y);
-            auto n = std::make_shared<node>(buffer);
+            auto n = f(x, y);
             out.push_back(n);
             grid[std::make_pair(x, y)] = n;
         }
@@ -108,3 +117,4 @@ void add_map(std::vector<std::shared_ptr<node>>& out __attribute__((unused)),
 
     source->add_path(std::make_shared<path>(source, dest));
 }
+
