@@ -38,6 +38,10 @@ namespace libocn {
     /* This stores a single node in the network along with every
      * path. */
     class node {
+        typedef std::shared_ptr<node> node_ptr;
+        typedef std::shared_ptr<path<node>> path_ptr;
+        typedef path<node> path_t;
+
     private:
         /* This stores the name of the node.  If this isn't unique
          * then things are going to go poorly! */
@@ -49,11 +53,11 @@ namespace libocn {
          * having to search too often: the rule is that the graph is
          * searched whenever */
         bool _paths_valid;
-        std::unordered_map<std::string, std::shared_ptr<path>> _paths;
+        std::unordered_map<std::string, path_ptr> _paths;
 
         /* This stores the list of neighbors of this node, which is
          * used for the shortest-path algorithm later. */
-        std::vector<std::shared_ptr<path>> _neighbors;
+        std::vector<path_ptr> _neighbors;
 
         /* Stores a unique ID for this node. */
         size_t _uid;
@@ -75,23 +79,23 @@ namespace libocn {
 
         /* Returns the path that must be taken in order to get from
          * this node to the provided node. */
-        const std::shared_ptr<path> search(const std::shared_ptr<node>& that);
+        const path_ptr search(const node_ptr& that);
 
         /* Informs this node of a path that it can take in order to
          * reach another node. */
-        void add_path(std::shared_ptr<path> p);
+        void add_path(path_ptr p);
 
         /* Returns a list of every path that this node knows how to
          * connect to. */
-        std::vector<std::shared_ptr<path>> paths(void);
+        std::vector<path_ptr> paths(void);
 
         /* Returns a list of the one-hop paths that this node can
          * access. */
-        std::vector<std::shared_ptr<path>> neighbors(void) const;
+        std::vector<path_ptr> neighbors(void) const;
 
         /* Returns the point number that will be used to connect from
          * this node to a neighboring node. */
-        size_t port_number(const std::shared_ptr<node>& neighbor) const;
+        size_t port_number(const node_ptr& neighbor) const;
 
     private:
         /* Checks "_paths" for validity, updating it if it hasn't been

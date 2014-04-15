@@ -40,6 +40,7 @@ namespace libocn {
     class mesh_network : public network<node_t> {
     protected:
         typedef std::shared_ptr<node_t> node_ptr;
+        typedef path<node_t> path_t;
 
     public:
         /* Mesh networks are entirely paramaterized by a rectangle
@@ -148,7 +149,7 @@ namespace libocn {
                 }
                 auto dest = dest_l->second;
 
-                source->add_path(std::make_shared<path>(source, dest));
+                source->add_path(std::make_shared<path_t>(source, dest));
             }
     };
 }

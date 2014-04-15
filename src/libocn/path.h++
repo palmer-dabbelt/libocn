@@ -23,7 +23,7 @@
 #define LIBOCN__PATH_HXX
 
 namespace libocn {
-    class path;
+    template<class node_t> class path;
 }
 
 #include "node.h++"
@@ -35,35 +35,90 @@ namespace libocn {
      * are uni-directional.  It's also important to note that all node
      * references are weak pointers here to avoid circular
      * references. */
+    template<class node_t>
     class path {
+        typedef std::weak_ptr<node_t> weak_node_ptr;
+        typedef std::shared_ptr<node_t> node_ptr;
+        typedef std::shared_ptr<path<node_t>> path_ptr;
+        typedef path<node_t> path_t;
+
     private:
-        std::weak_ptr<node> _s;
-        std::weak_ptr<node> _d;
+        weak_node_ptr _s;
+        weak_node_ptr _d;
         double _cost;
-        std::vector<std::weak_ptr<node>> _steps;
+        std::vector<weak_node_ptr> _steps;
 
     public:
         /* This creates a direct path between two nodes (a source and
          * a destination) with a cost of 1. */
-        path(std::shared_ptr<node>& source, std::shared_ptr<node>& dest);
+        path(const node_ptr& source, const node_ptr& dest)
+            : _s(source),
+              _d(dest),
+              _cost(1),
+              _steps()
+            {
+            }
 
         /* Creates a path explicitly given all its parameters. */
-        path(std::shared_ptr<node> source, std::shared_ptr<node> dest,
-             const std::vector<std::shared_ptr<node>>& steps, double cost);
+        path(const node_ptr& source, const node_ptr& dest,
+             const std::vector<node_ptr>& steps, double cost)
+            : _s(source),
+              _d(dest),
+              _cost(cost),
+              _steps(weaken(steps))
+            {
+            }
 
         /* Accessor functions. */
-        std::shared_ptr<node> d(void) const { return _d.lock(); }
-        std::shared_ptr<node> s(void) const { return _s.lock(); }
-        std::vector<std::shared_ptr<node>> steps(void) const;
+        node_ptr d(void) const { return _d.lock(); }
+        node_ptr s(void) const { return _s.lock(); }
+        std::vector<node_ptr> steps(void) const
+            {
+                std::vector<node_ptr> steps;
+
+                for (const auto& step : _steps)
+                    steps.push_back(step.lock());
+
+                return steps;
+            }
         double cost(void) const { return _cost; }
 
         /* Concatenates this path with another path, producing a new
          * one. */
-        std::shared_ptr<path> cat(const std::shared_ptr<path>& that);
+        path_ptr cat(const path_ptr& that)
+            {
+                /* Concatonate the two step lists into a single large
+                 * one. */
+                std::vector<std::shared_ptr<node>> step_list;
+                for (const auto& step : this->steps())
+                    step_list.push_back(step);
+                step_list.push_back(this->d());
+                for (const auto& step : that->steps())
+                    step_list.push_back(step);
+
+                return std::make_shared<path_t>(this->s(),
+                                              that->d(),
+                                              step_list,
+                                              this->cost() + that->cost());
+            }
 
         /* Returns TRUE if this is a direct path, which means it has
          * only a single neighbor. */
         bool is_direct(void) const { return _steps.size() == 0; }
+
+    private:
+        /* Converts an array of shared pointers into an array of weak
+         * pointers. */
+        static std::vector<weak_node_ptr>
+        weaken(const std::vector<node_ptr>& strong)
+            {
+                std::vector<weak_node_ptr> out;
+
+                for (const auto& ptr : strong)
+                    out.push_back(ptr);
+
+                return out;
+            }
     };
 }
 

@@ -25,6 +25,10 @@
 #include <stack>
 using namespace libocn;
 
+typedef std::shared_ptr<node> node_ptr;
+typedef std::shared_ptr<path<node>> path_ptr;
+typedef path<node> path_t;
+
 /* This consists of the UID management code, which deals with creating
  * a new UID for every node that's created by the system.  Note that
  * these UIDs are keyed based on the node's string name, */
@@ -45,7 +49,7 @@ node::~node(void)
     put_uid(name());
 }
 
-const std::shared_ptr<path> node::search(const std::shared_ptr<node>& that)
+const path_ptr node::search(const node_ptr& that)
 {
     update_paths();
 
@@ -56,13 +60,13 @@ const std::shared_ptr<path> node::search(const std::shared_ptr<node>& that)
     return l->second;
 }
 
-void node::add_path(std::shared_ptr<path> new_path)
+void node::add_path(path_ptr new_path)
 {
     /* Check if there was an old path to this target.  If so we're
      * going to need to replace the path, but only if it's worse than
      * the new path. */
     auto old_path_l = _paths.find(new_path->d()->name());
-    std::shared_ptr<path> old_path = NULL;
+    path_ptr old_path = NULL;
     if (old_path_l != _paths.end())
         old_path = old_path_l->second;
 
@@ -77,11 +81,11 @@ void node::add_path(std::shared_ptr<path> new_path)
         _neighbors.push_back(new_path);
 }
 
-std::vector<std::shared_ptr<path>> node::paths(void)
+std::vector<path_ptr> node::paths(void)
 {
     update_paths();
 
-    std::vector<std::shared_ptr<path>> out;
+    std::vector<path_ptr> out;
 
     for (const auto& pair : _paths)
         out.push_back(pair.second);
@@ -89,7 +93,7 @@ std::vector<std::shared_ptr<path>> node::paths(void)
     return out;
 }
 
-std::vector<std::shared_ptr<path>> node::neighbors(void) const
+std::vector<path_ptr> node::neighbors(void) const
 {
     return _neighbors;
 }
@@ -125,7 +129,7 @@ void node::update_paths(void)
 
     /* Here we create a stack that contains all the new paths that
      * have been discovered as the result of this addition. */
-    std::stack<std::shared_ptr<path>> paths;
+    std::stack<path_ptr> paths;
     for (const auto& pair : _paths)
         paths.push(pair.second);
 
@@ -142,7 +146,7 @@ void node::update_paths(void)
          * going to need to replace the path and re-compute
          * everything. */
         auto old_path_l = _paths.find(new_path->d()->name());
-        std::shared_ptr<path> old_path;
+        path_ptr old_path = NULL;
         if (old_path_l != _paths.end())
             old_path = old_path_l->second;
 
