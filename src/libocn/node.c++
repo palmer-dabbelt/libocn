@@ -20,6 +20,7 @@
  */
 
 #include "node.h++"
+#include <stdlib.h>
 #include <stack>
 using namespace libocn;
 
