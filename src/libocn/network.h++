@@ -35,19 +35,41 @@ namespace libocn {
      * between nodes -- essentially what this means is that if you're
      * doing any computation on the network you want to keep around a
      * reference to that network. */
-    class network {
+    template<class node_t> class network {
+    protected:
+        typedef std::shared_ptr<node_t> node_ptr;
+
     private:
         /* This stores the list of every node in the network. */
-        std::unordered_map<std::string, std::shared_ptr<node>> _nodes;
+        std::unordered_map<std::string, node_ptr> _nodes;
+        std::vector<node_ptr> _node_list;
 
     public:
         /* This constructor will probably only be useful if you're a
          * subclass of a network that aims to avoid parsing
          * configuration files. */
-        network(const std::vector<std::shared_ptr<node>>& nodes);
+        network(const std::vector<node_ptr>& nodes)
+            : _nodes(build_name_map(nodes)),
+              _node_list(nodes)
+            {
+            }
 
         /* Returns a list that contains every node in this network. */
-        std::vector<std::shared_ptr<node>> nodes(void) const;
+        std::vector<node_ptr> nodes(void) const { return _node_list; }
+
+    private:
+        /* This is used by the constructor to convert a node list to a
+         * map of nodes. */
+        static std::unordered_map<std::string, node_ptr>
+        build_name_map(const std::vector<node_ptr>& nodes)
+            {
+                std::unordered_map<std::string, std::shared_ptr<node>> out;
+
+                for (const auto& node : nodes)
+                    out[node->name()] = node;
+
+                return out;
+            }
     };
 }
 

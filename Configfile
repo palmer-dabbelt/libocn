@@ -15,16 +15,12 @@ COMPILEOPTS += -Sobj/proc/version-pc.sed
 GENERATE    += version.h
 GENERATE    += version-pc.sed
 
-LIBRARIES   += libocn.so
-SOURCES     += libocn/mesh_network.c++
-SOURCES     += libocn/dmesh_network.c++
 CONFIG      += find_library_headers
 
 LIBRARIES   += pkgconfig/libocn.pc
 SOURCES     += libocn/libocn.pc
 
 BINARIES    += ocn-shortest_path
-DEPLIBS     += ocn
 SOURCES     += shortest_path.c++
 
 TESTSRC     += mesh-2x2.bash

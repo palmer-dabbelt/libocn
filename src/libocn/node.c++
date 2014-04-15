@@ -30,7 +30,7 @@ using namespace libocn;
  * these UIDs are keyed based on the node's string name, */
 static size_t get_uid(const std::string& name);
 static void put_uid(const std::string& name);
-static std::unordered_map<std::string, size_t> uid_map;
+static std::unordered_map<std::string, size_t> name2uid;
 
 node::node(const std::string& name)
     : _name(name),
@@ -175,8 +175,8 @@ size_t get_uid(const std::string& name)
 {
     static size_t uid = 1;
 
-    auto l = uid_map.find(name);
-    if (l != uid_map.end()) {
+    auto l = name2uid.find(name);
+    if (l != name2uid.end()) {
         fprintf(stderr, "re-mapped UID: '%s' -> %lu\n",
                 l->first.c_str(),
                 l->second
@@ -190,19 +190,19 @@ size_t get_uid(const std::string& name)
     }
 
     uid++;
-    uid_map[name] = uid;
+    name2uid[name] = uid;
     return uid;
 }
 
 void put_uid(const std::string& name)
 {
-    auto l = uid_map.find(name);
-    if (l == uid_map.end()) {
+    auto l = name2uid.find(name);
+    if (l == name2uid.end()) {
         fprintf(stderr, "uid_put for unmapped name: '%s'\n",
                 name.c_str()
             );
         abort();
     }
 
-    uid_map.erase(name);
+    name2uid.erase(name);
 }

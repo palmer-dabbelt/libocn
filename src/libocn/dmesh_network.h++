@@ -28,11 +28,17 @@ namespace libocn {
     /* This is the special sort of mesh network that exists on
      * DREAMER, which is essentially a mesh network that's offset by 1
      * in the X direction. */
-    class dmesh_network : public mesh_network {
+    template<class node_t>
+    class dmesh_network : public mesh_network<node_t> {
+        typedef std::shared_ptr<node_t> node_ptr;
+
     public:
         /* Creates a DREAMER mesh network of the given size. */
         dmesh_network(size_t x_count, size_t y_count,
-                      std::function<node_ptr_t(size_t, size_t)> f);
+                      std::function<node_ptr(size_t, size_t)> f)
+            : mesh_network<node_t>(1, x_count, 0, y_count-1, f)
+            {
+            }
     };
 }
 

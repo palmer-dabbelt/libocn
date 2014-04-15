@@ -42,21 +42,21 @@ int main(int argc, const char **argv)
 
     /* This can be constructed in a number of different ways, but
      * needs to persist below. */
-    std::shared_ptr<libocn::network> network = NULL;
+    std::shared_ptr<libocn::network<libocn::node>> network = NULL;
 
     if ((argc == 4) && (strcmp(argv[1], "--mesh") == 0)) {
-        network = std::make_shared<libocn::mesh_network>(
+        network = std::make_shared<libocn::mesh_network<libocn::node>>(
             atoi(argv[2]),
             atoi(argv[3]),
-            libocn::mesh_network::create_node
+            libocn::mesh_network<libocn::node>::create_node
             );
     }
 
     if ((argc == 4) && (strcmp(argv[1], "--dmesh") == 0)) {
-        network = std::make_shared<libocn::dmesh_network>(
+        network = std::make_shared<libocn::dmesh_network<libocn::node>>(
             atoi(argv[2]),
             atoi(argv[3]),
-            libocn::mesh_network::create_node
+            libocn::mesh_network<libocn::node>::create_node
             );
     }
 
