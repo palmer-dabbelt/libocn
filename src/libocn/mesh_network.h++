@@ -24,6 +24,7 @@
 
 #include "network.h++"
 #include "node.h++"
+#include <stdlib.h>
 #include <map>
 #include <functional>
 
