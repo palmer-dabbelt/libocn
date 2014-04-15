@@ -21,6 +21,7 @@
 
 #include "version.h"
 #include <libocn/mesh_network.h++>
+#include <libocn/dmesh_network.h++>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -30,6 +31,7 @@ int main(int argc, const char **argv)
     if ((argc < 2) || (strcmp(argv[1], "--help") == 0)) {
         printf("%s: Compute all shortest paths for a network\n", argv[0]);
         printf("\t--mesh <width> <height>: A mesh network\n");
+        printf("\t--dmesh <width> <height>: A DREAMER-style mesh, 1 offset\n");
         return (argc == 2) ? 0 : 1;
     }
 
@@ -45,6 +47,11 @@ int main(int argc, const char **argv)
     if ((argc == 4) && (strcmp(argv[1], "--mesh") == 0)) {
         network = std::make_shared<libocn::mesh_network>(atoi(argv[2]),
                                                          atoi(argv[3]));
+    }
+
+    if ((argc == 4) && (strcmp(argv[1], "--dmesh") == 0)) {
+        network = std::make_shared<libocn::dmesh_network>(atoi(argv[2]),
+                                                          atoi(argv[3]));
     }
 
     if (network == NULL) {

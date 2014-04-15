@@ -29,3 +29,4 @@ SOURCES     += shortest_path.c++
 TESTSRC     += mesh-2x2.bash
 TESTSRC     += mesh-5x5.bash
 TESTSRC     += mesh-9x9.bash
+TESTSRC     += dmesh-2x2.bash
