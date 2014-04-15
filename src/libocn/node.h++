@@ -53,14 +53,23 @@ namespace libocn {
          * used for the shortest-path algorithm later. */
         std::vector<std::shared_ptr<path>> _neighbors;
 
+        /* Stores a unique ID for this node. */
+        size_t _uid;
+
     public:
         /* Creates a node without any paths, given a name that
-         * uniquely identifies that node.  You really need these names
-         * to be unique! */
+         * uniquely identifies that node.  This name will be checked
+         * for uniquness at create time. */
         node(const std::string& name);
+
+        /* A node destructor. */
+        ~node(void);
 
         /* Returns the name of a node. */
         const std::string& name(void) const { return _name; }
+
+        /* Returns a unique ID for this node. */
+        size_t uid(void) const { return _uid; }
 
         /* Returns the path that must be taken in order to get from
          * this node to the provided node. */

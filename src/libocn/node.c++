@@ -23,11 +23,24 @@
 #include <stack>
 using namespace libocn;
 
+/* This consists of the UID management code, which deals with creating
+ * a new UID for every node that's created by the system.  Note that
+ * these UIDs are keyed based on the node's string name, */
+static size_t get_uid(const std::string& name);
+static void put_uid(const std::string& name);
+static std::unordered_map<std::string, size_t> uid_map;
+
 node::node(const std::string& name)
     : _name(name),
       _paths_valid(true),
-      _paths()
+      _paths(),
+      _uid(get_uid(name))
 {
+}
+
+node::~node(void)
+{
+    put_uid(name());
 }
 
 const std::shared_ptr<path> node::search(const std::shared_ptr<node>& that)
@@ -133,4 +146,40 @@ void node::update_paths(void)
 
     /* Now we can set that flag so this never gots called again. */
     this->_paths_valid = true;
+}
+
+size_t get_uid(const std::string& name)
+{
+    static size_t uid = 1;
+
+    auto l = uid_map.find(name);
+    if (l != uid_map.end()) {
+        fprintf(stderr, "re-mapped UID: '%s' -> %lu\n",
+                l->first.c_str(),
+                l->second
+            );
+        abort();
+    }
+
+    if (uid == 0) {
+        fprintf(stderr, "UID wraparound\n");
+        abort();
+    }
+
+    uid++;
+    uid_map[name] = uid;
+    return uid;
+}
+
+void put_uid(const std::string& name)
+{
+    auto l = uid_map.find(name);
+    if (l == uid_map.end()) {
+        fprintf(stderr, "uid_put for unmapped name: '%s'\n",
+                name.c_str()
+            );
+        abort();
+    }
+
+    uid_map.erase(name);
 }
