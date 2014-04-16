@@ -75,6 +75,21 @@ int main(int argc, const char **argv)
                 );
         }
     }
+#elif defined(NEIGHBORS)
+    for (const auto& node : network->nodes()) {
+        for (const auto& path : node->neighbors()) {
+            printf("%s %lu-> %s: %f\n",
+                   path->s()->name().c_str(),
+                   path->s()->port_number(path->d()),
+                   path->d()->name().c_str(),
+                   path->cost()
+                );
+        }
+    }
+#elif defined(NODE_LIST)
+    for (const auto& node : network->nodes()) {
+        printf("%s\n", node->name().c_str());
+    }
 #else
 #error "Define some sort of driver mode"
 #endif

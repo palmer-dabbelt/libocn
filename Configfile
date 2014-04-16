@@ -30,3 +30,13 @@ TESTSRC     += mesh-2x2.bash
 TESTSRC     += mesh-5x5.bash
 TESTSRC     += mesh-9x9.bash
 TESTSRC     += dmesh-2x2.bash
+
+BINARIES    += ocn-node_list
+DEPLIBS     += ocn
+SOURCES     += driver.c++
+COMPILEOPTS += -DNODE_LIST
+
+BINARIES    += ocn-neighbors
+DEPLIBS     += ocn
+SOURCES     += driver.c++
+COMPILEOPTS += -DNEIGHBORS
