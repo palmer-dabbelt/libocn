@@ -85,7 +85,7 @@ namespace libocn {
             {
                 char buffer[BUFFER_SIZE];
                 snprintf(buffer, BUFFER_SIZE, "(%lu,%lu)", x, y);
-                return std::make_shared<node>(buffer);
+                return std::make_shared<node_t>(buffer);
             }
 
     private:
@@ -96,8 +96,8 @@ namespace libocn {
                            size_t y_min, size_t y_max,
                            std::function<node_ptr(size_t, size_t)> f)
             {
-                std::vector<std::shared_ptr<node>> out;
-                std::map<std::pair<size_t, size_t>, std::shared_ptr<node>> grid;
+                std::vector<node_ptr> out;
+                std::map<std::pair<size_t, size_t>, node_ptr> grid;
 
                 /* First we just build a big list of every node in the
                  * system.  There's two accounting structures that get

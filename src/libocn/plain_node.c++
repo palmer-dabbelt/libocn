@@ -19,4 +19,15 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#include "node.h++"
+#include "plain_node.h++"
+using namespace libocn;
+
+plain_node::plain_node(const std::string& name)
+    : node<plain_node>(name)
+{
+}
+
+plain_node::~plain_node(void)
+{
+}
+

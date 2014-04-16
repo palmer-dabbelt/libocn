@@ -89,7 +89,7 @@ namespace libocn {
             {
                 /* Concatonate the two step lists into a single large
                  * one. */
-                std::vector<std::shared_ptr<node>> step_list;
+                std::vector<node_ptr> step_list;
                 for (const auto& step : this->steps())
                     step_list.push_back(step);
                 step_list.push_back(this->d());

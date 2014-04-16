@@ -20,3 +20,16 @@
  */
 
 #include "node.h++"
+
+namespace libocn {
+    /* This is a "plain node", which is just a node with nothing
+     * special going on.  It's useful because you can't actually
+     * instantiate a node template without a node template (which
+     * itself needs a node template...). */
+    class plain_node: public node<plain_node> {
+    public:
+        plain_node(const std::string& name);
+        ~plain_node(void);
+    };
+}
+

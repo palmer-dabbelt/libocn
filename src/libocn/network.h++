@@ -63,7 +63,7 @@ namespace libocn {
         static std::unordered_map<std::string, node_ptr>
         build_name_map(const std::vector<node_ptr>& nodes)
             {
-                std::unordered_map<std::string, std::shared_ptr<node>> out;
+                std::unordered_map<std::string, node_ptr> out;
 
                 for (const auto& node : nodes)
                     out[node->name()] = node;

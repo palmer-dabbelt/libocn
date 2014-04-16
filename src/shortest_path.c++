@@ -22,6 +22,7 @@
 #include "version.h"
 #include <libocn/mesh_network.h++>
 #include <libocn/dmesh_network.h++>
+#include <libocn/plain_node.h++>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -42,21 +43,21 @@ int main(int argc, const char **argv)
 
     /* This can be constructed in a number of different ways, but
      * needs to persist below. */
-    std::shared_ptr<libocn::network<libocn::node>> network = NULL;
+    std::shared_ptr<libocn::network<libocn::plain_node>> network = NULL;
 
     if ((argc == 4) && (strcmp(argv[1], "--mesh") == 0)) {
-        network = std::make_shared<libocn::mesh_network<libocn::node>>(
+        network = std::make_shared<libocn::mesh_network<libocn::plain_node>>(
             atoi(argv[2]),
             atoi(argv[3]),
-            libocn::mesh_network<libocn::node>::create_node
+            libocn::mesh_network<libocn::plain_node>::create_node
             );
     }
 
     if ((argc == 4) && (strcmp(argv[1], "--dmesh") == 0)) {
-        network = std::make_shared<libocn::dmesh_network<libocn::node>>(
+        network = std::make_shared<libocn::dmesh_network<libocn::plain_node>>(
             atoi(argv[2]),
             atoi(argv[3]),
-            libocn::mesh_network<libocn::node>::create_node
+            libocn::mesh_network<libocn::plain_node>::create_node
             );
     }
 
