@@ -22,6 +22,7 @@
 #ifndef LIBOCN__NODE_HXX
 #define LIBOCN__NODE_HXX
 
+#include <stdlib.h>
 #include <unordered_map>
 #include <memory>
 #include <stack>
