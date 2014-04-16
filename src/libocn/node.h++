@@ -146,17 +146,17 @@ namespace libocn {
 
         /* Returns the point number that will be used to connect from
          * this node to a neighboring node. */
-        size_t port_number(const node_ptr& neighbor) const
+        size_t port_number(const node_ptr& n) const
             {
                 for (size_t i = 0; i < _neighbors.size(); ++i) {
-                    auto neighbor = _neighbors[i]->d();
-                    if (strcmp(neighbor->name().c_str(), name().c_str()) == 0)
+                    auto ni = _neighbors[i]->d();
+                    if (strcmp(ni->name().c_str(), n->name().c_str()) == 0)
                         return i;
                 }
 
                 fprintf(stderr, "No port from '%s' to '%s'\n",
                         this->name().c_str(),
-                        neighbor->name().c_str()
+                        n->name().c_str()
                     );
                 fprintf(stderr, "Ports '%s' are:\n", name().c_str());
                 for (size_t i = 0; i < _neighbors.size(); ++i) {
