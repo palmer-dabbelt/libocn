@@ -24,8 +24,8 @@ SOURCES     += libocn/libocn.pc
 
 BINARIES    += ocn-shortest_path
 DEPLIBS     += ocn
-SOURCES     += shortest_path.c++
-
+SOURCES     += driver.c++
+COMPILEOPTS += -DSHORTEST_PATHS
 TESTSRC     += mesh-2x2.bash
 TESTSRC     += mesh-5x5.bash
 TESTSRC     += mesh-9x9.bash

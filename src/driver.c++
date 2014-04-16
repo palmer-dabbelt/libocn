@@ -65,19 +65,19 @@ int main(int argc, const char **argv)
         exit(1);
     }
 
+#if defined(SHORTEST_PATHS)
     for (const auto& node : network->nodes()) {
         for (const auto& path : node->paths()) {
-#ifndef BENCHMARK
             printf("%s -> %s: %f\n",
                    path->s()->name().c_str(),
                    path->d()->name().c_str(),
                    path->cost()
                 );
-#else
-            auto path_copy = path;
-#endif
         }
     }
+#else
+#error "Define some sort of driver mode"
+#endif
 
     return 0;
 }
