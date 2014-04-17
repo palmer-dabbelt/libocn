@@ -45,7 +45,7 @@ namespace libocn {
     private:
         weak_node_ptr _s;
         weak_node_ptr _d;
-        double _cost;
+        size_t _cost;
         std::vector<weak_node_ptr> _steps;
 
     public:
@@ -61,7 +61,7 @@ namespace libocn {
 
         /* Creates a path explicitly given all its parameters. */
         path(const node_ptr& source, const node_ptr& dest,
-             const std::vector<node_ptr>& steps, double cost)
+             const std::vector<node_ptr>& steps, size_t cost)
             : _s(source),
               _d(dest),
               _cost(cost),
@@ -81,7 +81,7 @@ namespace libocn {
 
                 return steps;
             }
-        double cost(void) const { return _cost; }
+        size_t cost(void) const { return _cost; }
 
         /* Concatenates this path with another path, producing a new
          * one. */
