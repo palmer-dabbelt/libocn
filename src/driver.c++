@@ -23,6 +23,7 @@
 #include <libocn/mesh_network.h++>
 #include <libocn/dmesh_network.h++>
 #include <libocn/plain_node.h++>
+#include <libocn/sizet_printf.h++>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -68,7 +69,7 @@ int main(int argc, const char **argv)
 #if defined(SHORTEST_PATHS)
     for (const auto& node : network->nodes()) {
         for (const auto& path : node->paths()) {
-            printf("%s -> %s: %lu\n",
+            printf("%s -> %s: " SIZET_FORMAT "\n",
                    path->s()->name().c_str(),
                    path->d()->name().c_str(),
                    path->cost()
@@ -78,7 +79,7 @@ int main(int argc, const char **argv)
 #elif defined(NEIGHBORS)
     for (const auto& node : network->nodes()) {
         for (const auto& path : node->neighbors()) {
-            printf("%s %lu-> %s: %lu\n",
+            printf("%s " SIZET_FORMAT "-> %s: " SIZET_FORMAT "\n",
                    path->s()->name().c_str(),
                    path->s()->port_number(path->d()),
                    path->d()->name().c_str(),

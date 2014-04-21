@@ -24,6 +24,7 @@
 
 #include "network.h++"
 #include "node.h++"
+#include "sizet_printf.h++"
 #include <stdlib.h>
 #include <map>
 #include <functional>
@@ -84,7 +85,7 @@ namespace libocn {
         static node_ptr create_node(size_t x, size_t y)
             {
                 char buffer[BUFFER_SIZE];
-                snprintf(buffer, BUFFER_SIZE, "(%lu,%lu)", x, y);
+                snprintf(buffer, BUFFER_SIZE, "(" SIZET_FORMAT "," SIZET_FORMAT ")", x, y);
                 return std::make_shared<node_t>(buffer);
             }
 
@@ -138,14 +139,14 @@ namespace libocn {
             {
                 auto source_l = grid.find(std::make_pair(sx, sy));
                 if (source_l == grid.end()) {
-                    fprintf(stderr, "Unmapped source (%lu, %lu)\n", sx, sy);
+                    fprintf(stderr, "Unmapped source (" SIZET_FORMAT "," SIZET_FORMAT ")\n", sx, sy);
                     abort();
                 }
                 auto source = source_l->second;
 
                 auto dest_l = grid.find(std::make_pair(dx, dy));
                 if (dest_l == grid.end()) {
-                    fprintf(stderr, "Unmapped dest (%lu, %lu)\n", dx, dy);
+                    fprintf(stderr, "Unmapped dest (" SIZET_FORMAT "," SIZET_FORMAT ")\n", dx, dy);
                     abort();
                 }
                 auto dest = dest_l->second;
