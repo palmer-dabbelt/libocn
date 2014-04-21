@@ -31,6 +31,7 @@
 #include <vector>
 
 #include "path.h++"
+#include "sizet_printf.h++"
 
 namespace libocn {
     /* This stores a single node in the network along with every
@@ -161,7 +162,7 @@ namespace libocn {
                 fprintf(stderr, "Ports '%s' are:\n", name().c_str());
                 for (size_t i = 0; i < _neighbors.size(); ++i) {
                     auto neighbor = _neighbors[i]->d();
-                    fprintf(stderr, "  '%s' at port %lu\n",
+                    fprintf(stderr, "  '%s' at port " SIZET_FORMAT "\n",
                             neighbor->name().c_str(),
                             i
                         );
@@ -242,7 +243,7 @@ namespace libocn {
 
                 auto l = name2uid.find(name);
                 if (l != name2uid.end()) {
-                    fprintf(stderr, "re-mapped UID: '%s' -> %lu\n",
+                    fprintf(stderr, "re-mapped UID: '%s' -> " SIZET_FORMAT "\n",
                             l->first.c_str(),
                             l->second
                         );
