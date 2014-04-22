@@ -9,7 +9,7 @@ do
     do
         if [[ "$s" != "$d" ]]
         then
-            echo "$s -> $d: 1" >> gold.stdout
+            echo "\"$s\" -> \"$d\": 1" >> gold.stdout
         fi
     done
 done
