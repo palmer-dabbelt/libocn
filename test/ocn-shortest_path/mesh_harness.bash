@@ -19,7 +19,7 @@ do
                     yda="$(echo "$yd" | awk ' { if($1>=0) { print $1} else {print $1*-1 }}')"
 
                     cost=$(($xda + $yda))
-                    echo "\"($sx,$sy)\" -> \"($dx,$dy)\": $cost" >> gold.stdout
+                    echo "\"($sx, $sy)\" -> \"($dx, $dy)\": $cost" >> gold.stdout
                 fi
             done
         done

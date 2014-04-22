@@ -85,7 +85,7 @@ namespace libocn {
         static node_ptr create_node(size_t x, size_t y)
             {
                 char buffer[BUFFER_SIZE];
-                snprintf(buffer, BUFFER_SIZE, "(" SIZET_FORMAT "," SIZET_FORMAT ")", x, y);
+                snprintf(buffer, BUFFER_SIZE, "(" SIZET_FORMAT ", " SIZET_FORMAT ")", x, y);
                 return std::make_shared<node_t>(buffer);
             }
 
