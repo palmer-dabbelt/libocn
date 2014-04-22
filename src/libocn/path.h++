@@ -51,10 +51,10 @@ namespace libocn {
     public:
         /* This creates a direct path between two nodes (a source and
          * a destination) with a cost of 1. */
-        path(const node_ptr& source, const node_ptr& dest)
+        path(const node_ptr& source, const node_ptr& dest, size_t cost = 1)
             : _s(source),
               _d(dest),
-              _cost(1),
+              _cost(cost),
               _steps()
             {
             }
