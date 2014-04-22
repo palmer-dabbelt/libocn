@@ -31,6 +31,7 @@ TESTSRC     += mesh-2x2.bash
 TESTSRC     += mesh-5x5.bash
 TESTSRC     += mesh-9x9.bash
 TESTSRC     += dmesh-2x2.bash
+TESTSRC     += crossbar-16.bash
 
 BINARIES    += ocn-node_list
 DEPLIBS     += ocn
