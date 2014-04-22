@@ -42,3 +42,4 @@ BINARIES    += ocn-neighbors
 DEPLIBS     += ocn
 SOURCES     += driver.c++
 COMPILEOPTS += -DNEIGHBORS
+TESTSRC     += file-dmesh-2x2.bash

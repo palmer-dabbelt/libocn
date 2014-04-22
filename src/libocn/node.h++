@@ -63,8 +63,8 @@ namespace libocn {
          * is stored in two directions: one stores the routes that go
          * out of this node, and one the routes that enter this
          * node. */
-        std::vector<path_ptr> _incoming_neighbors;
-        std::vector<path_ptr> _outgoing_neighbors;
+        std::unordered_map<size_t, path_ptr> _incoming_neighbors;
+        std::unordered_map<size_t, path_ptr> _outgoing_neighbors;
 
         /* Stores a unique ID for this node. */
         size_t _uid;
@@ -110,6 +110,24 @@ namespace libocn {
          * reach another node. */
         void add_path(path_ptr new_path)
             {
+                auto find_port = []
+                    (std::unordered_map<size_t, path_ptr>& map) -> size_t
+                    {
+                        for (size_t i = 0; i <= map.size(); ++i)
+                            if (map.find(i) == map.end())
+                                return i;
+
+                        return map.size();
+                    };
+
+                return add_path(new_path,
+                                find_port(new_path->s()->_outgoing_neighbors),
+                                find_port(new_path->d()->_incoming_neighbors)
+                    );
+            }
+
+        void add_path(path_ptr new_path, size_t sp, size_t dp)
+            {
                 /* Check if there was an old path to this target.  If
                  * so we're going to need to replace the path, but
                  * only if it's worse than the new path. */
@@ -126,9 +144,37 @@ namespace libocn {
                 _paths[new_path->d()->name()] = new_path;
                 _paths_valid = false;
 
+                /* A direct path is one that's only a single hop --
+                 * that means we're neighbors. */
                 if (new_path->is_direct() == true) {
-                    new_path->s()->_outgoing_neighbors.push_back(new_path);
-                    new_path->d()->_incoming_neighbors.push_back(new_path);
+                    /* Check if the port we're going to store to has
+                     * already been taken by something else -- I'm
+                     * just going to define this as an error, as it
+                     * probably is. */
+                    auto out = &new_path->s()->_outgoing_neighbors;
+                    if (out->find(sp) != out->end()) {
+                        fprintf(stderr,
+                                "Overwriting port " SIZET_FORMAT " in '%s'\n",
+                                sp,
+                                new_path->s()->name().c_str()
+                            );
+                        abort();
+                    }
+
+                    auto inc = &new_path->d()->_incoming_neighbors;
+                    if (inc->find(dp) != inc->end()) {
+                        fprintf(stderr,
+                                "Overwriting port " SIZET_FORMAT " in '%s'\n",
+                                dp,
+                                new_path->d()->name().c_str()
+                            );
+                        abort();
+                    }
+
+                    /* Here's were we actually install the port
+                     * mapping. */
+                    new_path->s()->_outgoing_neighbors[sp] = new_path;
+                    new_path->d()->_incoming_neighbors[dp] = new_path;
                 }
             }
 
@@ -148,12 +194,20 @@ namespace libocn {
          * access. */
         std::vector<path_ptr> incoming_neighbors(void) const
             {
-                return _incoming_neighbors;
+                std::vector<path_ptr> out;
+                for (const auto& p: _incoming_neighbors)
+                    out.push_back(p.second);
+
+                return out;
             }
 
         std::vector<path_ptr> outgoing_neighbors(void) const
             {
-                return _outgoing_neighbors;
+                std::vector<path_ptr> out;
+                for (const auto& p: _outgoing_neighbors)
+                    out.push_back(p.second);
+
+                return out;
             }
 
         /* Returns the point number that will be used to connect from
@@ -223,8 +277,8 @@ namespace libocn {
 
                     /* Add every newly-discovered path to the queue
                      * for processing. */
-                    for (const auto& second_half : new_path->d()->_outgoing_neighbors) {
-                        paths.push(new_path->cat(second_half));
+                    for (const auto& p: new_path->d()->_outgoing_neighbors) {
+                        paths.push(new_path->cat(p.second));
                     }
                 }
 
@@ -235,13 +289,13 @@ namespace libocn {
         /* A helper function for both the incoming and outgoing port
          * neighbor searches functions. */
         size_t port_number(const node_ptr& n,
-                           const std::vector<path_ptr>& neighbors,
+                           const std::unordered_map<size_t, path_ptr>& map,
                            std::function<node_ptr(path_ptr)> f) const
             {
-                for (size_t i = 0; i < neighbors.size(); ++i) {
-                    auto ni = f(neighbors[i]);
+                for (const auto& p: map) {
+                    auto ni = f(p.second);
                     if (strcmp(ni->name().c_str(), n->name().c_str()) == 0)
-                        return i;
+                        return p.first;
                 }
 
                 fprintf(stderr, "No port from '%s' to '%s'\n",
@@ -249,11 +303,11 @@ namespace libocn {
                         n->name().c_str()
                     );
                 fprintf(stderr, "Ports '%s' are:\n", name().c_str());
-                for (size_t i = 0; i < neighbors.size(); ++i) {
-                    auto neighbor = f(neighbors[i]);
+                for (const auto& p: map) {
+                    auto neighbor = f(p.second);
                     fprintf(stderr, "  '%s' at port " SIZET_FORMAT "\n",
                             neighbor->name().c_str(),
-                            i
+                            p.first
                         );
                 }
                 abort();

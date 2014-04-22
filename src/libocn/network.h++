@@ -153,8 +153,7 @@ namespace libocn {
                     /* Create a direct path between these two
                      * nodes. */
                     auto p = std::make_shared<path_t>(s, d, cost);
-                    /* FIXME: Set the input and output ports here. */
-                    s->add_path(p);
+                    s->add_path(p, source_port, dest_port);
                 }
 
                 fclose(f);
