@@ -77,7 +77,7 @@ int main(int argc, const char **argv)
 #if defined(SHORTEST_PATHS)
     for (const auto& node : network->nodes()) {
         for (const auto& path : node->paths()) {
-            printf("%s -> %s: " SIZET_FORMAT "\n",
+            printf("\"%s\" -> \"%s\": " SIZET_FORMAT "\n",
                    path->s()->name().c_str(),
                    path->d()->name().c_str(),
                    path->cost()
@@ -87,7 +87,7 @@ int main(int argc, const char **argv)
 #elif defined(NEIGHBORS)
     for (const auto& node : network->nodes()) {
         for (const auto& path : node->outgoing_neighbors()) {
-            printf("%s " SIZET_FORMAT " -> %s " SIZET_FORMAT ": " SIZET_FORMAT "\n",
+            printf("\"%s\" " SIZET_FORMAT " -> \"%s\" " SIZET_FORMAT ": " SIZET_FORMAT "\n",
                    path->s()->name().c_str(),
                    path->s()->port_number_out(path->d()),
                    path->d()->name().c_str(),
