@@ -23,10 +23,15 @@
 #define LIBOCN__NETWORK_HXX
 
 #include "node.h++"
+#include "path.h++"
 #include <unordered_map>
 #include <memory>
 #include <string>
 #include <vector>
+
+#ifndef BUFFER_SIZE
+#define BUFFER_SIZE 1024
+#endif
 
 namespace libocn {
     /* This is the top-level OCN class: it stores a single network.
@@ -38,19 +43,28 @@ namespace libocn {
     template<class node_t> class network {
     protected:
         typedef std::shared_ptr<node_t> node_ptr;
+        typedef path<node_t> path_t;
 
     private:
         /* This stores the list of every node in the network. */
-        std::unordered_map<std::string, node_ptr> _nodes;
         std::vector<node_ptr> _node_list;
+        std::unordered_map<std::string, node_ptr> _nodes;
 
     public:
         /* This constructor will probably only be useful if you're a
          * subclass of a network that aims to avoid parsing
          * configuration files. */
         network(const std::vector<node_ptr>& nodes)
-            : _nodes(build_name_map(nodes)),
-              _node_list(nodes)
+            : _node_list(nodes),
+              _nodes(build_name_map(nodes))
+            {
+            }
+
+        /* This constructor reads a file to produce a list of nodes
+         * along with their neighbors. */
+        network(const std::string& filename)
+            : _node_list(read_file(filename)),
+              _nodes(build_name_map(_node_list))
             {
             }
 
@@ -68,6 +82,83 @@ namespace libocn {
                 for (const auto& node : nodes)
                     out[node->name()] = node;
 
+                return out;
+            }
+
+        /* Reads a file (by path) to produce a list of nodes. */
+        static std::vector<node_ptr> read_file(const std::string& path)
+            {
+                std::vector<node_ptr> out;
+                std::unordered_map<std::string, node_ptr> name_map;
+                size_t line_num = 0;
+                FILE *f = fopen(path.c_str(), "r");
+                char line[BUFFER_SIZE];
+
+                while (fgets(line, BUFFER_SIZE, f) != NULL) {
+                    line_num++;
+
+                    /* This signifies a comment character. */
+                    if (line[0] == '#')
+                        continue;
+
+                    /* Now we parse the string...  Here '%[^\"]' means
+                     * a string that ends with '"'. */
+                    char source[BUFFER_SIZE], dest[BUFFER_SIZE];
+                    int source_port, dest_port, cost;
+                    int scanned = sscanf(line,
+                                         "\"%[^\"]\" %d -> \"%[^\"]\" %d: %d",
+                                         source, &source_port,
+                                         dest, &dest_port,
+                                         &cost);
+                    if (scanned != 5) {
+                        fprintf(stderr, "Unable to parse line: '%s'\n", line);
+                        fprintf(stderr, "  Read %d tokens\n", scanned);
+
+                        switch (scanned) {
+                        case 5:
+                            fprintf(stderr, "  5: %d\n", cost);
+                        case 4:
+                            fprintf(stderr, "  4: %d\n", dest_port);
+                        case 3:
+                            fprintf(stderr, "  3: '%s'\n", dest);
+                        case 2:
+                            fprintf(stderr, "  2: %d\n", source_port);
+                        case 1:
+                            fprintf(stderr, "  1: '%s'\n", source);
+                        }
+
+                        abort();
+                    }
+
+                    /* At this point we have the parsed file, so we
+                     * just need to add this to the big list.  First
+                     * we make sure that these nodes have already
+                     * added to the list of nodes we know about. */
+                    auto add_node = [&out, &name_map]
+                        (const std::string& s) -> node_ptr
+                        {
+                            auto l = name_map.find(s);
+                            if (l == name_map.end()) {
+                                auto n = std::make_shared<node_t>(s);
+                                name_map[s] = n;
+                                out.push_back(n);
+                                return n;
+                            }
+
+                            return l->second;
+                        };
+                    auto s = add_node(source);
+                    auto d = add_node(dest);
+
+                    /* Create a direct path between these two
+                     * nodes. */
+                    /* FIXME: Set the cost here. */
+                    auto p = std::make_shared<path_t>(s, d);
+                    /* FIXME: Set the input and output ports here. */
+                    s->add_path(p);
+                }
+
+                fclose(f);
                 return out;
             }
     };
