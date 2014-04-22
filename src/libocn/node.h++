@@ -160,12 +160,14 @@ namespace libocn {
          * this node to a neighboring node. */
         size_t port_number_out(const node_ptr& n) const
             {
-                return port_number(n, _outgoing_neighbors);
+                auto p2n = [](path_ptr p) -> node_ptr { return p->d(); };
+                return port_number(n, _outgoing_neighbors, p2n);
             }
 
         size_t port_number_in(const node_ptr& n) const
             {
-                return port_number(n, _incoming_neighbors);
+                auto p2n = [](path_ptr p) -> node_ptr { return p->s(); };
+                return port_number(n, _incoming_neighbors, p2n);
             }
 
     private:
@@ -233,10 +235,11 @@ namespace libocn {
         /* A helper function for both the incoming and outgoing port
          * neighbor searches functions. */
         size_t port_number(const node_ptr& n,
-                           const std::vector<path_ptr>& neighbors) const
+                           const std::vector<path_ptr>& neighbors,
+                           std::function<node_ptr(path_ptr)> f) const
             {
                 for (size_t i = 0; i < neighbors.size(); ++i) {
-                    auto ni = neighbors[i]->d();
+                    auto ni = f(neighbors[i]);
                     if (strcmp(ni->name().c_str(), n->name().c_str()) == 0)
                         return i;
                 }
@@ -247,7 +250,7 @@ namespace libocn {
                     );
                 fprintf(stderr, "Ports '%s' are:\n", name().c_str());
                 for (size_t i = 0; i < neighbors.size(); ++i) {
-                    auto neighbor = neighbors[i]->d();
+                    auto neighbor = f(neighbors[i]);
                     fprintf(stderr, "  '%s' at port " SIZET_FORMAT "\n",
                             neighbor->name().c_str(),
                             i
