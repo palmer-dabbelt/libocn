@@ -260,6 +260,7 @@ namespace libocn {
                 return -1;
             }
 
+    private:
        /* This consists of the UID management code, which deals with
         * creating a new UID for every node that's created by the
         * system.  Note that these UIDs are keyed based on the node's
