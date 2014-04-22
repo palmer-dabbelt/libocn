@@ -59,8 +59,12 @@ namespace libocn {
         std::unordered_map<std::string, path_ptr> _paths;
 
         /* This stores the list of neighbors of this node, which is
-         * used for the shortest-path algorithm later. */
-        std::vector<path_ptr> _neighbors;
+         * used for the shortest-path algorithm later.  Note that this
+         * is stored in two directions: one stores the routes that go
+         * out of this node, and one the routes that enter this
+         * node. */
+        std::vector<path_ptr> _incoming_neighbors;
+        std::vector<path_ptr> _outgoing_neighbors;
 
         /* Stores a unique ID for this node. */
         size_t _uid;
@@ -122,8 +126,10 @@ namespace libocn {
                 _paths[new_path->d()->name()] = new_path;
                 _paths_valid = false;
 
-                if (new_path->is_direct() == true)
-                    _neighbors.push_back(new_path);
+                if (new_path->is_direct() == true) {
+                    new_path->s()->_outgoing_neighbors.push_back(new_path);
+                    new_path->d()->_incoming_neighbors.push_back(new_path);
+                }
             }
 
         /* Returns a list of every path that this node knows how to
@@ -140,35 +146,26 @@ namespace libocn {
 
         /* Returns a list of the one-hop paths that this node can
          * access. */
-        std::vector<path_ptr> neighbors(void) const
+        std::vector<path_ptr> incoming_neighbors(void) const
             {
-                return _neighbors;
+                return _incoming_neighbors;
+            }
+
+        std::vector<path_ptr> outgoing_neighbors(void) const
+            {
+                return _outgoing_neighbors;
             }
 
         /* Returns the point number that will be used to connect from
          * this node to a neighboring node. */
-        size_t port_number(const node_ptr& n) const
+        size_t port_number_out(const node_ptr& n) const
             {
-                for (size_t i = 0; i < _neighbors.size(); ++i) {
-                    auto ni = _neighbors[i]->d();
-                    if (strcmp(ni->name().c_str(), n->name().c_str()) == 0)
-                        return i;
-                }
+                return port_number(n, _outgoing_neighbors);
+            }
 
-                fprintf(stderr, "No port from '%s' to '%s'\n",
-                        this->name().c_str(),
-                        n->name().c_str()
-                    );
-                fprintf(stderr, "Ports '%s' are:\n", name().c_str());
-                for (size_t i = 0; i < _neighbors.size(); ++i) {
-                    auto neighbor = _neighbors[i]->d();
-                    fprintf(stderr, "  '%s' at port " SIZET_FORMAT "\n",
-                            neighbor->name().c_str(),
-                            i
-                        );
-                }
-                abort();
-                return -1;
+        size_t port_number_in(const node_ptr& n) const
+            {
+                return port_number(n, _incoming_neighbors);
             }
 
     private:
@@ -224,13 +221,40 @@ namespace libocn {
 
                     /* Add every newly-discovered path to the queue
                      * for processing. */
-                    for (const auto& second_half : new_path->d()->_neighbors) {
+                    for (const auto& second_half : new_path->d()->_outgoing_neighbors) {
                         paths.push(new_path->cat(second_half));
                     }
                 }
 
                 /* Now we can set that flag so this never gots called again. */
                 this->_paths_valid = true;
+            }
+
+        /* A helper function for both the incoming and outgoing port
+         * neighbor searches functions. */
+        size_t port_number(const node_ptr& n,
+                           const std::vector<path_ptr>& neighbors) const
+            {
+                for (size_t i = 0; i < neighbors.size(); ++i) {
+                    auto ni = neighbors[i]->d();
+                    if (strcmp(ni->name().c_str(), n->name().c_str()) == 0)
+                        return i;
+                }
+
+                fprintf(stderr, "No port from '%s' to '%s'\n",
+                        this->name().c_str(),
+                        n->name().c_str()
+                    );
+                fprintf(stderr, "Ports '%s' are:\n", name().c_str());
+                for (size_t i = 0; i < neighbors.size(); ++i) {
+                    auto neighbor = neighbors[i]->d();
+                    fprintf(stderr, "  '%s' at port " SIZET_FORMAT "\n",
+                            neighbor->name().c_str(),
+                            i
+                        );
+                }
+                abort();
+                return -1;
             }
 
        /* This consists of the UID management code, which deals with

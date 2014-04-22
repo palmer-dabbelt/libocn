@@ -86,10 +86,10 @@ int main(int argc, const char **argv)
     }
 #elif defined(NEIGHBORS)
     for (const auto& node : network->nodes()) {
-        for (const auto& path : node->neighbors()) {
+        for (const auto& path : node->outgoing_neighbors()) {
             printf("%s " SIZET_FORMAT "-> %s: " SIZET_FORMAT "\n",
                    path->s()->name().c_str(),
-                   path->s()->port_number(path->d()),
+                   path->s()->port_number_out(path->d()),
                    path->d()->name().c_str(),
                    path->cost()
                 );
