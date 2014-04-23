@@ -72,7 +72,11 @@ int main(int argc, const char **argv)
 
     if ((argc == 3) && (strcmp(argv[1], "--file") == 0)) {
         network = std::make_shared<libocn::network<libocn::plain_node>>(
-            argv[2]
+            argv[2],
+            [](std::string s) -> std::shared_ptr<libocn::plain_node>
+            {
+                return std::make_shared<libocn::plain_node>(s);
+            }
             );
     }
 

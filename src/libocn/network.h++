@@ -62,8 +62,9 @@ namespace libocn {
 
         /* This constructor reads a file to produce a list of nodes
          * along with their neighbors. */
-        network(const std::string& filename)
-            : _node_list(read_file(filename)),
+        network(const std::string& filename,
+                std::function<node_ptr(std::string)> f)
+            : _node_list(read_file(filename, f)),
               _nodes(build_name_map(_node_list))
             {
             }
@@ -86,7 +87,9 @@ namespace libocn {
             }
 
         /* Reads a file (by path) to produce a list of nodes. */
-        static std::vector<node_ptr> read_file(const std::string& path)
+        static std::vector<node_ptr> read_file(
+            const std::string& path,
+            std::function<node_ptr(std::string)> fn)
             {
                 std::vector<node_ptr> out;
                 std::unordered_map<std::string, node_ptr> name_map;
@@ -134,12 +137,12 @@ namespace libocn {
                      * just need to add this to the big list.  First
                      * we make sure that these nodes have already
                      * added to the list of nodes we know about. */
-                    auto add_node = [&out, &name_map]
+                    auto add_node = [&out, &name_map, &fn]
                         (const std::string& s) -> node_ptr
                         {
                             auto l = name_map.find(s);
                             if (l == name_map.end()) {
-                                auto n = std::make_shared<node_t>(s);
+                                auto n = fn(s);
                                 name_map[s] = n;
                                 out.push_back(n);
                                 return n;
