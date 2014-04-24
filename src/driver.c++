@@ -21,6 +21,7 @@
 
 #include "version.h"
 #include <libocn/mesh_network.h++>
+#include <libocn/cmesh_network.h++>
 #include <libocn/dmesh_network.h++>
 #include <libocn/crossbar_network.h++>
 #include <libocn/plain_node.h++>
@@ -60,6 +61,15 @@ int main(int argc, const char **argv)
             atoi(argv[2]),
             atoi(argv[3]),
             libocn::mesh_network<libocn::plain_node>::create_node
+            );
+    }
+
+    if ((argc == 5) && (strcmp(argv[1], "--cmesh") == 0)) {
+        network = std::make_shared<libocn::cmesh_network<libocn::plain_node>>(
+            atoi(argv[2]),
+            atoi(argv[3]),
+            atoi(argv[4]),
+            libocn::cmesh_network<libocn::plain_node>::create_node
             );
     }
 
