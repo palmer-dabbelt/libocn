@@ -77,7 +77,11 @@ namespace libocn {
         /* Returns a list that contains every node in this network. */
         std::vector<node_ptr> nodes(void) const { return _node_list; }
 
-        /* Searches for a */
+        /* Returns the nodes formatted as a grid. */
+        std::map< std::pair<size_t, size_t> , node_ptr > grid(void) const
+            { return _grid; }
+
+        /* Searches for a single node in the grid. */
         node_ptr lookup(size_t x, size_t y) const
             {
                 auto p = std::make_pair(x, y);

@@ -46,3 +46,8 @@ DEPLIBS     += ocn
 SOURCES     += driver.c++
 COMPILEOPTS += -DNEIGHBORS
 TESTSRC     += file-dmesh-2x2.bash
+
+BINARIES    += ocn-grid
+DEPLIBS     += ocn
+SOURCES     += driver.c++
+COMPILEOPTS += -DGRID

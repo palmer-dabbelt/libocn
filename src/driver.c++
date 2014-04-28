@@ -133,6 +133,14 @@ int main(int argc, const char **argv)
     for (const auto& node : network->nodes()) {
         printf("%s\n", node->name().c_str());
     }
+#elif defined(GRID)
+    for (const auto& pair: network->grid()) {
+        printf("(" SIZET_FORMAT "," SIZET_FORMAT ") -> \"%s\"\n",
+               pair.first.first,
+               pair.first.second,
+               pair.second->name().c_str()
+            );
+    }
 #else
 #error "Define some sort of driver mode"
 #endif
