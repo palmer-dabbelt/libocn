@@ -78,8 +78,8 @@ namespace libocn {
             {
                 size_t x_min = 0, y_min = 0;
 
-                std::vector<node_ptr> out;
                 std::map<std::pair<size_t, size_t>, node_ptr> grid;
+                std::map<std::pair<size_t, size_t>, std::vector<node_ptr>> ogrid;
 
                 /* First we build up all the crossbar groups.  We keep
                  * track of a single node in each crossbar that acts
@@ -88,10 +88,8 @@ namespace libocn {
                     for (size_t y = y_min; y <= y_max; ++y) {
                         std::vector<node_ptr> crossbar;
 
-                        for (size_t i = 0; i < count; ++i) {
+                        for (size_t i = 0; i < count; ++i)
                             crossbar.push_back(f(x, y, i));
-                            out.push_back(crossbar[i]);
-                        }
 
                         for (size_t i = 0; i < count; ++i) {
                             for (size_t j = 0; j < count; ++j) {
@@ -105,6 +103,7 @@ namespace libocn {
                         }
 
                         grid[std::make_pair(x, y)] = crossbar[0];
+                        ogrid[std::make_pair(x, y)] = crossbar;
                     }
                 }
 
@@ -113,13 +112,52 @@ namespace libocn {
                 for (size_t x = x_min; x <= x_max; ++x) {
                     for (size_t y = y_min; y <= y_max; ++y) {
                         if (x > x_min)
-                            add_map(out, grid, x, y, x-1, y+0);
+                            add_map(grid, x, y, x-1, y+0);
                         if (x < x_max)
-                            add_map(out, grid, x, y, x+1, y+0);
+                            add_map(grid, x, y, x+1, y+0);
                         if (y > y_min)
-                            add_map(out, grid, x, y, x+0, y-1);
+                            add_map(grid, x, y, x+0, y-1);
                         if (y < y_max)
-                            add_map(out, grid, x, y, x+0, y+1);
+                            add_map(grid, x, y, x+0, y+1);
+                    }
+                }
+
+                /* We need to map the crosbar as a square for when
+                 * we're mapping this whole network to a grid. */
+                size_t xbr = (size_t)(floor(sqrt(count)));
+                if ((xbr * xbr) != count) {
+                    fprintf(stderr, "Non-square crossbar\n");
+                    abort();
+                }
+
+                /* At this point we've got the whole network built, we
+                 * just need to output it in the correct order such
+                 * that it'll be mapped correctly by the placement
+                 * tool.  The general idea is that this ordering
+                 * should be the same as a mesh network, it's just
+                 * that we'll have some extra connections. */
+                std::vector<node_ptr> out;
+
+                for (size_t x = 0; x < ((x_max + 1) * xbr); ++x) {
+                    for (size_t y = 0; y < ((y_max + 1) * xbr); ++y) {
+                        /* This is the position of the root of the
+                         * crossbar switch in this network. */
+                        auto cx = x / xbr;
+                        auto cy = y / xbr;
+
+                        /* This is the position within the crossbar of
+                         * this element. */
+                        auto tx = x % xbr;
+                        auto ty = y % xbr;
+                        auto cz = (tx * xbr) + ty;
+
+                        /* Now push the correct index. */
+                        auto l = ogrid.find(std::make_pair(cx, cy));
+                        if (l == ogrid.end()) {
+                            fprintf(stderr, "Missing crossbar\n");
+                            abort();
+                        }
+                        out.push_back(l->second[cz]);
                     }
                 }
 
@@ -127,9 +165,7 @@ namespace libocn {
             }
 
         static
-        void add_map(std::vector<node_ptr>& out __attribute__((unused)),
-                     std::map<std::pair<size_t, size_t>,
-                              node_ptr>& grid,
+        void add_map(std::map<std::pair<size_t, size_t>, node_ptr>& grid,
                      size_t sx, size_t sy, size_t dx, size_t dy)
             {
                 auto source_l = grid.find(std::make_pair(sx, sy));
