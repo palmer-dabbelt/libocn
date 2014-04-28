@@ -105,8 +105,8 @@ namespace libocn {
                  * created: a vector of all nodes, and a map that
                  * allows me to quickly look up a node based on its
                  * position. */
-                for (size_t x = x_min; x <= x_max; ++x) {
-                    for (size_t y = y_min; y <= y_max; ++y) {
+                for (size_t y = y_min; y <= y_max; ++y) {
+                    for (size_t x = x_min; x <= x_max; ++x) {
                         auto n = f(x, y);
                         out.push_back(n);
                         grid[std::make_pair(x, y)] = n;

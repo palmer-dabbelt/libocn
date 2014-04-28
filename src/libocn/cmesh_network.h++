@@ -84,8 +84,8 @@ namespace libocn {
                 /* First we build up all the crossbar groups.  We keep
                  * track of a single node in each crossbar that acts
                  * as the routing node. */
-                for (size_t x = x_min; x <= x_max; ++x) {
-                    for (size_t y = y_min; y <= y_max; ++y) {
+                for (size_t y = y_min; y <= y_max; ++y) {
+                    for (size_t x = x_min; x <= x_max; ++x) {
                         /* FIXME: This isn't a crossbar any more and
                          * should be renamed accordingly. */
                         std::vector<node_ptr> crossbar;
