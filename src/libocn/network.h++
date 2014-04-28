@@ -24,7 +24,9 @@
 
 #include "node.h++"
 #include "path.h++"
+#include <math.h>
 #include <unordered_map>
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -49,6 +51,7 @@ namespace libocn {
         /* This stores the list of every node in the network. */
         std::vector<node_ptr> _node_list;
         std::unordered_map<std::string, node_ptr> _nodes;
+        std::map< std::pair<size_t, size_t>, node_ptr > _grid;
 
     public:
         /* This constructor will probably only be useful if you're a
@@ -56,7 +59,8 @@ namespace libocn {
          * configuration files. */
         network(const std::vector<node_ptr>& nodes)
             : _node_list(nodes),
-              _nodes(build_name_map(nodes))
+              _nodes(build_name_map(nodes)),
+              _grid(build_grid(nodes))
             {
             }
 
@@ -65,12 +69,23 @@ namespace libocn {
         network(const std::string& filename,
                 std::function<node_ptr(std::string)> f)
             : _node_list(read_file(filename, f)),
-              _nodes(build_name_map(_node_list))
+              _nodes(build_name_map(_node_list)),
+              _grid(build_grid(_node_list))
             {
             }
 
         /* Returns a list that contains every node in this network. */
         std::vector<node_ptr> nodes(void) const { return _node_list; }
+
+        /* Searches for a */
+        node_ptr lookup(size_t x, size_t y) const
+            {
+                auto p = std::make_pair(x, y);
+                auto l = _grid.find(p);
+                if (l == _grid.end())
+                    return NULL;
+                return l->second;
+            }
 
     private:
         /* This is used by the constructor to convert a node list to a
@@ -160,6 +175,25 @@ namespace libocn {
                 }
 
                 fclose(f);
+                return out;
+            }
+
+        /* Produces a grid from a list of nodes.  Note that this is a
+         * bit screwy: it relies on the implicit ordering of */
+        static
+        std::map< std::pair<size_t, size_t>, node_ptr>
+        build_grid(const std::vector<node_ptr>& nodes)
+            {
+                std::map< std::pair<size_t, size_t>, node_ptr> out;
+
+                size_t width = (size_t)(floor(sqrt(nodes.size())));
+                for (size_t i = 0; i < nodes.size(); ++i) {
+                    auto x = i % width;
+                    auto y = i / width;
+                    auto p = std::make_pair(x, y);
+                    out[p] = nodes[i];
+                }
+
                 return out;
             }
     };
