@@ -24,6 +24,7 @@
 #include <libocn/cmesh_network.h++>
 #include <libocn/dmesh_network.h++>
 #include <libocn/crossbar_network.h++>
+#include <libocn/crossmesh_network.h++>
 #include <libocn/plain_node.h++>
 #include <libocn/sizet_printf.h++>
 #include <stdio.h>
@@ -77,6 +78,15 @@ int main(int argc, const char **argv)
         network = std::make_shared<libocn::crossbar_network<libocn::plain_node>>(
             atoi(argv[2]),
             libocn::crossbar_network<libocn::plain_node>::create_node
+            );
+    }
+
+    if ((argc == 5) && (strcmp(argv[1], "--crossmesh") == 0)) {
+        network = std::make_shared<libocn::crossmesh_network<libocn::plain_node>>(
+            atoi(argv[2]),
+            atoi(argv[3]),
+            atoi(argv[4]),
+            libocn::crossmesh_network<libocn::plain_node>::create_node
             );
     }
 

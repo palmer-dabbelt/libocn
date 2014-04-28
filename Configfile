@@ -20,6 +20,7 @@ SOURCES     += libocn/plain_node.c++
 SOURCES     += libocn/mesh_network.c++
 SOURCES     += libocn/cmesh_network.c++
 SOURCES     += libocn/dmesh_network.c++
+SOURCES     += libocn/crossmesh_network.c++
 CONFIG      += find_library_headers
 
 LIBRARIES   += pkgconfig/libocn.pc
