@@ -86,20 +86,18 @@ namespace libocn {
                  * as the routing node. */
                 for (size_t x = x_min; x <= x_max; ++x) {
                     for (size_t y = y_min; y <= y_max; ++y) {
+                        /* FIXME: This isn't a crossbar any more and
+                         * should be renamed accordingly. */
                         std::vector<node_ptr> crossbar;
 
-                        for (size_t i = 0; i < count; ++i)
-                            crossbar.push_back(f(x, y, i));
-
                         for (size_t i = 0; i < count; ++i) {
-                            for (size_t j = 0; j < count; ++j) {
-                                if (i == j)
-                                    continue;
+                            auto s = f(x, y, i);
+                            crossbar.push_back(s);
+                            if (i == 0)
+                                continue;
 
-                                auto s = crossbar[i];
-                                auto d = crossbar[j];
-                                s->add_path(std::make_shared<path_t>(s, d));
-                            }
+                            auto d = crossbar[0];
+                            s->add_path(std::make_shared<path_t>(s, d));
                         }
 
                         grid[std::make_pair(x, y)] = crossbar[0];
