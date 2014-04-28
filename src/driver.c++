@@ -37,6 +37,9 @@ int main(int argc, const char **argv)
         printf("%s: Compute all shortest paths for a network\n", argv[0]);
         printf("\t--mesh <width> <height>: A mesh network\n");
         printf("\t--dmesh <width> <height>: A DREAMER-style mesh, 1 offset\n");
+        printf("\t--cmesh <width> <height> <nodes>: Concentrated mesh\n");
+        printf("\t--crossbar <nodes>: A full crossbar\n");
+        printf("\t--crossmesh <width> <height> <nodes>: Mesh-of-crossbar\n");
         return (argc == 2) ? 0 : 1;
     }
 
