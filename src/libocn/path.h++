@@ -76,8 +76,12 @@ namespace libocn {
             {
                 std::vector<node_ptr> steps;
 
+                steps.push_back(s());
+
                 for (const auto& step : _steps)
                     steps.push_back(step.lock());
+
+                steps.push_back(d());
 
                 return steps;
             }
@@ -90,16 +94,16 @@ namespace libocn {
                 /* Concatonate the two step lists into a single large
                  * one. */
                 std::vector<node_ptr> step_list;
-                for (const auto& step : this->steps())
-                    step_list.push_back(step);
+                for (const auto& step : this->_steps)
+                    step_list.push_back(step.lock());
                 step_list.push_back(this->d());
-                for (const auto& step : that->steps())
-                    step_list.push_back(step);
+                for (const auto& step : that->_steps)
+                    step_list.push_back(step.lock());
 
                 return std::make_shared<path_t>(this->s(),
-                                              that->d(),
-                                              step_list,
-                                              this->cost() + that->cost());
+                                                that->d(),
+                                                step_list,
+                                                this->cost() + that->cost());
             }
 
         /* Returns TRUE if this is a direct path, which means it has
