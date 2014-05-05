@@ -107,6 +107,11 @@ int main(int argc, const char **argv)
         exit(1);
     }
 
+#if defined(DOT)
+    printf("digraph Network {\n");
+    printf("  graph [ overlap=false ]");
+#endif
+
 #if defined(SHORTEST_PATHS)
     for (const auto& node : network->nodes()) {
         for (const auto& path : node->paths()) {
@@ -141,8 +146,21 @@ int main(int argc, const char **argv)
                pair.second->name().c_str()
             );
     }
+#elif defined(DOT)
+    for (const auto& node: network->nodes()) {
+        for (const auto& path: node->outgoing_neighbors()) {
+            printf("  \"%s\" -> \"%s\"\n",
+                   path->s()->name().c_str(),
+                   path->d()->name().c_str()
+                );
+        }
+    }
 #else
 #error "Define some sort of driver mode"
+#endif
+
+#if defined(DOT)
+    printf("}\n");
 #endif
 
     return 0;

@@ -51,3 +51,11 @@ BINARIES    += ocn-grid
 DEPLIBS     += ocn
 SOURCES     += driver.c++
 COMPILEOPTS += -DGRID
+
+BINARIES    += ocn-dot
+DEPLIBS     += ocn
+SOURCES     += driver.c++
+COMPILEOPTS += -DDOT
+
+BINARIES    += ocn-pdf
+SOURCES     += pdf.bash
