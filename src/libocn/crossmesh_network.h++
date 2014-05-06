@@ -126,8 +126,15 @@ namespace libocn {
                  * we're mapping this whole network to a grid. */
                 size_t xbr = (size_t)(floor(sqrt(count)));
                 if ((xbr * xbr) != count) {
-                    fprintf(stderr, "Non-square crossbar\n");
-                    abort();
+                    fprintf(stderr, "WARNING: Non-square crossbar\n");
+
+                    std::vector<node_ptr> out;
+                    for (const auto& crossbar: ogrid) {
+                        for (const auto& node: crossbar.second) {
+                            out.push_back(node);
+                        }
+                    }
+                    return out;
                 }
 
                 /* At this point we've got the whole network built, we
