@@ -52,7 +52,7 @@ namespace libocn {
          * below. */
         crossmesh_network(size_t x, size_t y, size_t count,
                       std::function<node_ptr(size_t, size_t, size_t)> f)
-            : network<node_t>(build_crossmesh_network(x-1, y-1, count, f))
+            : network<node_t>(build_crossmesh_network(x, y, count, f))
             {
             }
 
@@ -73,98 +73,72 @@ namespace libocn {
         /* This is effectively the constructor, the actual constructor
          * functions are just wrappers for this. */
         static std::vector<node_ptr>
-        build_crossmesh_network(size_t x_max, size_t y_max, size_t count,
+        build_crossmesh_network(size_t X, size_t Y, size_t count,
                             std::function<node_ptr(size_t, size_t, size_t)> f)
             {
-                size_t x_min = 0, y_min = 0;
+                size_t side = floor(sqrt(count));
+                if ((side * side) != count) {
+                    fprintf(stderr, "Building non-square crossbar\n");
+                    abort();
+                }
 
+                std::vector<node_ptr> out;
                 std::map<std::pair<size_t, size_t>, node_ptr> grid;
-                std::map<std::pair<size_t, size_t>, std::vector<node_ptr>> ogrid;
+                std::map<std::pair<size_t, size_t>, size_t> cbc;
+                std::multimap<std::pair<size_t, size_t>, node_ptr> cb;
 
-                /* First we build up all the crossbar groups.  We keep
-                 * track of a single node in each crossbar that acts
-                 * as the routing node. */
-                for (size_t y = y_min; y <= y_max; ++y) {
-                    for (size_t x = x_min; x <= x_max; ++x) {
-                        std::vector<node_ptr> crossbar;
+                /* First just make every node so we can reference them
+                 * later. */
+                for (size_t y = 0; y < Y * side; ++y) {
+                    for (size_t x = 0; x < X * side; ++x) {
+                        auto cx = x / side;
+                        auto cy = y / side;
+                        if (cbc.find(std::make_pair(cx, cy)) == cbc.end())
+                            cbc[std::make_pair(cx, cy)] = 0;
+                        auto c = cbc.find(std::make_pair(cx, cy))->second;
 
-                        for (size_t i = 0; i < count; ++i)
-                            crossbar.push_back(f(x, y, i));
+                        auto n = f(cx, cy, c);
+                        out.push_back(n);
+                        grid[std::make_pair(x, y)] = n;
+                        cb.insert(std::make_pair(std::make_pair(cx, cy), n));
 
-                        for (size_t i = 0; i < count; ++i) {
-                            for (size_t j = 0; j < count; ++j) {
-                                if (i == j)
-                                    continue;
-
-                                auto s = crossbar[i];
-                                auto d = crossbar[j];
-                                s->add_path(std::make_shared<path_t>(s, d));
-                            }
-                        }
-
-                        grid[std::make_pair(x, y)] = crossbar[0];
-                        ogrid[std::make_pair(x, y)] = crossbar;
+                        c++;
+                        cbc[std::make_pair(cx, cy)] = c;
                     }
                 }
 
-                /* Now we just need to connect the crossbar switches
-                 * together. */
-                for (size_t x = x_min; x <= x_max; ++x) {
-                    for (size_t y = y_min; y <= y_max; ++y) {
-                        if (x > x_min)
+                /* Now build a mesh network, the crossmesh is strictly
+                 * more connected than the mesh is. */
+                for (size_t y = 0; y < Y * side; ++y) {
+                    for (size_t x = 0; x < X * side; ++x) {
+                        if (x > 0)
                             add_map(grid, x, y, x-1, y+0);
-                        if (x < x_max)
+                        if (x < (X*side)-1)
                             add_map(grid, x, y, x+1, y+0);
-                        if (y > y_min)
+                        if (y > 0)
                             add_map(grid, x, y, x+0, y-1);
-                        if (y < y_max)
+                        if (y < (Y*side)-1)
                             add_map(grid, x, y, x+0, y+1);
                     }
                 }
 
-                /* We need to map the crosbar as a square for when
-                 * we're mapping this whole network to a grid. */
-                size_t xbr = (size_t)(floor(sqrt(count)));
-                if ((xbr * xbr) != count) {
-                    fprintf(stderr, "WARNING: Non-square crossbar\n");
+                /* Now link the internal nodes with crossbars. */
+                for (const auto& ap: cb) {
+                    for (const auto& bp: cb) {
+                        if (ap.first != bp.first)
+                            continue;
 
-                    std::vector<node_ptr> out;
-                    for (const auto& crossbar: ogrid) {
-                        for (const auto& node: crossbar.second) {
-                            out.push_back(node);
-                        }
-                    }
-                    return out;
-                }
+                        auto a = ap.second;
+                        auto b = bp.second;
 
-                /* At this point we've got the whole network built, we
-                 * just need to output it in the correct order such
-                 * that it'll be mapped correctly by the placement
-                 * tool.  The general idea is that this ordering
-                 * should be the same as a mesh network, it's just
-                 * that we'll have some extra connections. */
-                std::vector<node_ptr> out;
+                        if (a->name() == b->name())
+                            continue;
 
-                for (size_t x = 0; x < ((x_max + 1) * xbr); ++x) {
-                    for (size_t y = 0; y < ((y_max + 1) * xbr); ++y) {
-                        /* This is the position of the root of the
-                         * crossbar switch in this network. */
-                        auto cx = x / xbr;
-                        auto cy = y / xbr;
+                        if (a->is_neighbor(b) == true)
+                            continue;
 
-                        /* This is the position within the crossbar of
-                         * this element. */
-                        auto tx = x % xbr;
-                        auto ty = y % xbr;
-                        auto cz = (tx * xbr) + ty;
-
-                        /* Now push the correct index. */
-                        auto l = ogrid.find(std::make_pair(cx, cy));
-                        if (l == ogrid.end()) {
-                            fprintf(stderr, "Missing crossbar\n");
-                            abort();
-                        }
-                        out.push_back(l->second[cz]);
+                        auto path = std::make_shared<path_t>(a, b);
+                        a->add_path(path);
                     }
                 }
 

@@ -106,6 +106,16 @@ namespace libocn {
                 return l->second;
             }
 
+        /* Returns TRUE if the target node is a neighbor of this
+         * node. */
+        bool is_neighbor(const node_ptr& that) const
+            {
+                auto l = this->_paths.find(that->name());
+                if (l == this->_paths.end())
+                    return false;
+                return (l->second->is_direct() == true);
+            }
+
         /* Informs this node of a path that it can take in order to
          * reach another node. */
         void add_path(path_ptr new_path)
