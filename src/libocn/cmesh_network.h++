@@ -98,6 +98,7 @@ namespace libocn {
 
                             auto d = crossbar[0];
                             s->add_path(std::make_shared<path_t>(s, d));
+                            s->add_path(std::make_shared<path_t>(d, s));
                         }
 
                         grid[std::make_pair(x, y)] = crossbar[0];
