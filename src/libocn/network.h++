@@ -91,6 +91,14 @@ namespace libocn {
                 return l->second;
             }
 
+        node_ptr lookup(const std::string& name) const
+            {
+                auto l = _nodes.find(name);
+                if (l == _nodes.end())
+                    return NULL;
+                return l->second;
+            }
+
     private:
         /* This is used by the constructor to convert a node list to a
          * map of nodes. */
