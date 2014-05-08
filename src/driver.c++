@@ -109,7 +109,7 @@ int main(int argc, const char **argv)
 
 #if defined(DOT)
     printf("digraph Network {\n");
-    printf("  graph [ overlap=false ]");
+    printf("  graph [ overlap=scale, splines=true ]");
 #endif
 
 #if defined(SHORTEST_PATHS)
